@@ -15,6 +15,7 @@ class OpenGraph
     @body = nil
     @images = []
     @metadata = {}
+    @is_html = false
     parse_opengraph(options)
     load_fallback if fallback
     check_images_path
@@ -25,6 +26,7 @@ class OpenGraph
     begin
       if @src.include? '</html>'
         @body = @src
+        @is_html = true
       else
         @body = RedirectFollower.new(@src, options).resolve.body
       end
@@ -77,7 +79,7 @@ class OpenGraph
 
   def check_images_path
     @original_images = @images.dup
-    return if @src.include? '</html>'
+    return if @is_html
     uri = Addressable::URI.parse(@url || @src)
     imgs = @images.dup
     @images = []
