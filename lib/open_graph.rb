@@ -6,7 +6,7 @@ require 'uri'
 class OpenGraph
   attr_accessor :src, :url, :type, :title, :description, :images, :metadata, :response, :original_images
 
-  def initialize(src, fallback = true, options = {})
+  def initialize(src, fallback = true, options = {}, uri = nil)
     if fallback.is_a? Hash
       options = fallback
       fallback = true
@@ -16,6 +16,7 @@ class OpenGraph
     @images = []
     @metadata = {}
     @is_html = false
+    @uri = uri
     parse_opengraph(options)
     load_fallback if fallback
     check_images_path
@@ -79,8 +80,11 @@ class OpenGraph
 
   def check_images_path
     @original_images = @images.dup
-    return if @is_html
-    uri = Addressable::URI.parse(@url || @src)
+    if @is_html && @uri
+      uri = @uri
+    else
+      uri = Addressable::URI.parse(@url || @src)
+    end
     imgs = @images.dup
     @images = []
     imgs.each do |img|
